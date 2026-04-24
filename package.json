@@ -1,16 +1,40 @@
 {
   "name": "@cap/auth",
   "version": "0.1.0",
-  "private": true,
-  "main": "./src/index.ts",
-  "types": "./src/index.ts",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "exports": {
-    ".": "./src/index.ts",
-    "./route-handler": "./src/route-handler.ts",
-    "./server": "./src/serverApi.ts",
-    "./apiClient": "./src/apiClient.ts",
-    "./protectedApi": "./src/protectedApi.ts",
-    "./authFetch": "./src/authFetch.ts"
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./route-handler": {
+      "types": "./dist/route-handler.d.ts",
+      "default": "./dist/route-handler.js"
+    },
+    "./server": {
+      "types": "./dist/serverApi.d.ts",
+      "default": "./dist/serverApi.js"
+    },
+    "./apiClient": {
+      "types": "./dist/apiClient.d.ts",
+      "default": "./dist/apiClient.js"
+    },
+    "./protectedApi": {
+      "types": "./dist/protectedApi.d.ts",
+      "default": "./dist/protectedApi.js"
+    },
+    "./authFetch": {
+      "types": "./dist/authFetch.d.ts",
+      "default": "./dist/authFetch.js"
+    }
+  },
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsc --project tsconfig.build.json",
+    "dev": "tsc --project tsconfig.build.json --watch",
+    "prepare": "tsc --project tsconfig.build.json",
+    "typecheck": "tsc --noEmit"
   },
   "peerDependencies": {
     "next": ">=15.0.0"

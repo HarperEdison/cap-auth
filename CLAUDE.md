@@ -1,38 +1,46 @@
 # cap-auth — Shared Auth Library
 
 Shared authentication utilities for cap-frontend and cap-admin.
-This is a source-only TypeScript package — no build step.
-Consuming Next.js apps transpile it via `transpilePackages`.
+Built with `tsc` and installed from GitHub via npm.
 
 ## Setup
 
-### In package.json:
+### In consuming project's package.json:
 ```json
-"@cap/auth": "file:../cap-auth"
+"@cap/auth": "github:HarperEdison/cap-auth"
 ```
 
-### In next.config.ts:
-```typescript
-transpilePackages: ['@cap/auth']
+No `transpilePackages`, tsconfig path overrides, or turbopack root hacks needed — the package ships compiled JS and declaration files.
+
+### Local development
+
+To iterate on cap-auth with live rebuilds:
+```bash
+cd repos/cap-auth && npm run dev   # watches src/ and rebuilds dist/
 ```
 
-### In tsconfig.json:
-```json
-"paths": {
-  "@cap/auth": ["../cap-auth/src/index.ts"],
-  "@cap/auth/*": ["../cap-auth/src/*"],
-  "next": ["./node_modules/next"],
-  "next/*": ["./node_modules/next/*"]
-},
-"include": ["...", "../cap-auth/src/**/*.ts"]
+Consumers resolve `@cap/auth` from node_modules. Use `npm link` for local development:
+```bash
+cd repos/cap-auth && npm link
+cd repos/cap-frontend && npm link @cap/auth
 ```
+
+## Building
+
+```bash
+npm run build       # one-shot build to dist/
+npm run dev         # watch mode
+npm run typecheck   # type-check without emitting
+```
+
+The `prepare` script runs `tsc` automatically when npm installs from GitHub.
 
 ## Entry Points
 
 ### `@cap/auth` — Edge-safe and client-safe
 Cookie utilities, token helpers, domain helpers, JWT parsing, apiClient, protectedApi, authFetch.
 ```typescript
-import { apiFetch, protectedApiFetch, authFetch, getCookieDomain, parseJwtPayload, setAuthCookiesOnStore } from '@cap/auth';
+import { apiFetch, protectedApiFetch, authFetch, getCookieDomain, parseJwtPayload, setAuthCookies, clearAuthCookies } from '@cap/auth';
 ```
 
 ### `@cap/auth/route-handler` — Server-only (uses `next/headers`)
