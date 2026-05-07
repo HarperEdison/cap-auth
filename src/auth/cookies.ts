@@ -16,7 +16,7 @@ function getBaseCookieOptions(hostname?: string): Partial<ResponseCookie> {
   return {
     httpOnly: true,
     secure: isProduction(),
-    sameSite: 'lax',
+    sameSite: 'none',
     path: '/',
     domain,
   };
