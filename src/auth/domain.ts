@@ -13,7 +13,8 @@ export function getCookieDomain(hostname: string | undefined | null): string | u
   if (host === 'localhost' || host === '127.0.0.1') return undefined;
   if (isIPv4(host) || isIPv6(host)) return undefined;
   const parts = host.split('.');
-  if (parts.length <= 2) return undefined;
+  if (parts.length < 2) return undefined;
+  if (parts.length === 2) return `.${host}`;
   return `.${parts.slice(1).join('.')}`;
 }
 
