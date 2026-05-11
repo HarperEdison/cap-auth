@@ -5,6 +5,7 @@ export interface JwtAuthClaims {
   last_name: string;
   role: string;
   phone_verified: boolean;
+  email_verified: boolean;
   username: string | null;
   exp: number;
   iat: number;
@@ -32,5 +33,6 @@ export function getValidTokenClaims(token: string, bufferSeconds = 0): JwtAuthCl
   if (typeof payload.userId !== 'string' || typeof payload.exp !== 'number') return null;
   if (!isTokenFresh(payload as { exp: number }, bufferSeconds)) return null;
   if (typeof payload.phone_verified !== 'boolean' || !('username' in payload)) return null;
+  if (typeof payload.email_verified !== 'boolean') return null;
   return payload as unknown as JwtAuthClaims;
 }
