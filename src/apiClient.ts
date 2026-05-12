@@ -56,6 +56,7 @@ export async function apiFetch<T = unknown>(options: ApiClientOptions): Promise<
     try {
       const mergedHeaders: Record<string, string> = {
         Accept: 'application/json',
+        'X-Requested-With': 'fetch',
         ...headers,
       };
       if (!formData) mergedHeaders['Content-Type'] = 'application/json';
