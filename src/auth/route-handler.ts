@@ -85,6 +85,7 @@ export async function makeProtectedApiCall<T>(
     formData: options.formData,
     accessToken: tokens.accessToken,
     refreshToken: tokens.refreshToken,
+    traceId: request?.headers.get('x-amzn-trace-id') ?? undefined,
   });
 
   const hostname = request ? getHostnameFromHeaders(request.headers) : undefined;

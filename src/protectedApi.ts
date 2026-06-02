@@ -7,6 +7,8 @@ export interface ProtectedRequestOptions {
   formData?: FormData;
   accessToken?: string | null;
   refreshToken?: string | null;
+  /** Incoming X-Amzn-Trace-Id, forwarded to cap-api so its logs share a trace_id. */
+  traceId?: string;
 }
 
 export interface ProtectedResult<T> {
@@ -28,9 +30,10 @@ type RefreshSuccess = {
 export async function protectedApiFetch<T = unknown>(
   options: ProtectedRequestOptions,
 ): Promise<ProtectedResult<T>> {
-  const { method = 'GET', path, body, formData, accessToken, refreshToken } = options;
+  const { method = 'GET', path, body, formData, accessToken, refreshToken, traceId } = options;
+  const headers = traceId ? { 'X-Amzn-Trace-Id': traceId } : undefined;
 
-  const initial = await apiFetch<T>({ method, path, body, formData, accessToken: accessToken ?? undefined });
+  const initial = await apiFetch<T>({ method, path, body, formData, accessToken: accessToken ?? undefined, headers });
   if (initial.ok) {
     return { ok: true, status: initial.status, data: initial.data };
   }
@@ -47,6 +50,7 @@ export async function protectedApiFetch<T = unknown>(
     method: 'POST',
     path: '/auth/refresh',
     body: { refresh_token: refreshToken },
+    headers,
   });
 
   if (!refresh.ok) {
@@ -55,7 +59,7 @@ export async function protectedApiFetch<T = unknown>(
 
   const tokens = refresh.data as RefreshSuccess;
 
-  const retry = await apiFetch<T>({ method, path, body, formData, accessToken: tokens.access_token });
+  const retry = await apiFetch<T>({ method, path, body, formData, accessToken: tokens.access_token, headers });
   if (!retry.ok) {
     return { ok: false, status: retry.status, error: retry.error };
   }

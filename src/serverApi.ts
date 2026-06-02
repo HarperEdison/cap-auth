@@ -1,4 +1,4 @@
-import { cookies } from 'next/headers';
+import { cookies, headers } from 'next/headers';
 import { type ApiResponse } from './apiClient';
 import { protectedApiFetch } from './protectedApi';
 import { getAuthTokensFromStore } from './auth/tokens';
@@ -17,7 +17,7 @@ export async function fetchCurrentUserRole(): Promise<string> {
 }
 
 export async function serverApiFetch<T = unknown>(options: ServerApiOptions): Promise<ApiResponse<T>> {
-  const cookieStore = await cookies();
+  const [cookieStore, headerStore] = await Promise.all([cookies(), headers()]);
   const { accessToken, refreshToken } = getAuthTokensFromStore(cookieStore);
   const result = await protectedApiFetch<T>({
     method: options.method ?? 'GET',
@@ -25,6 +25,7 @@ export async function serverApiFetch<T = unknown>(options: ServerApiOptions): Pr
     body: options.body,
     accessToken,
     refreshToken,
+    traceId: headerStore.get('x-amzn-trace-id') ?? undefined,
   });
   return { ok: result.ok, status: result.status, data: result.data, error: result.error };
 }
