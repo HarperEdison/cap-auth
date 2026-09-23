@@ -9,6 +9,8 @@ export interface ProtectedRequestOptions {
   refreshToken?: string | null;
   /** Incoming X-Amzn-Trace-Id, forwarded to cap-api so its logs share a trace_id. */
   traceId?: string;
+  /** Browser session id (cfa_sid), forwarded so cap-api can group a visit. */
+  sessionId?: string;
 }
 
 export interface ProtectedResult<T> {
@@ -30,8 +32,16 @@ type RefreshSuccess = {
 export async function protectedApiFetch<T = unknown>(
   options: ProtectedRequestOptions,
 ): Promise<ProtectedResult<T>> {
-  const { method = 'GET', path, body, formData, accessToken, refreshToken, traceId } = options;
-  const headers = traceId ? { 'X-Amzn-Trace-Id': traceId } : undefined;
+  const { method = 'GET', path, body, formData, accessToken, refreshToken, traceId, sessionId } = options;
+  // Forward both correlation keys to cap-api: the trace ties this one hop
+  // together, the session ties every hop of the visit together.
+  const headers: Record<string, string> | undefined =
+    traceId || sessionId
+      ? {
+          ...(traceId ? { 'X-Amzn-Trace-Id': traceId } : {}),
+          ...(sessionId ? { 'X-CFA-Session': sessionId } : {}),
+        }
+      : undefined;
 
   const initial = await apiFetch<T>({ method, path, body, formData, accessToken: accessToken ?? undefined, headers });
   if (initial.ok) {
