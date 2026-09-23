@@ -19,6 +19,8 @@ export const SESSION_COOKIE_NAME = 'cfa_sid';
 /** Idle window. Refreshed on every response, so it slides while the visit is active. */
 export const SESSION_MAX_AGE = 30 * 60;
 
+const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 function isProduction(): boolean {
   return process.env.NODE_ENV === 'production';
 }
@@ -36,9 +38,16 @@ function getSessionCookieOptions(hostname?: string): Partial<ResponseCookie> {
   };
 }
 
-/** Read the current session id, if the visitor already has one. */
+/**
+ * Read the current session id, if the visitor already has one.
+ *
+ * The cookie is client-supplied, so only accept it if it matches the shape
+ * we mint (a uuid). Otherwise a visitor could put arbitrary strings into
+ * cap-api logs, or spoof another visitor's id to pollute their log grouping.
+ */
 export function getSessionId(request: NextRequest): string | undefined {
-  return request.cookies.get(SESSION_COOKIE_NAME)?.value;
+  const value = request.cookies.get(SESSION_COOKIE_NAME)?.value;
+  return value && UUID_PATTERN.test(value) ? value : undefined;
 }
 
 /**
