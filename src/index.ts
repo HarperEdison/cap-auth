@@ -13,6 +13,14 @@ export type { AuthTokens } from './auth/tokens';
 export { parseJwtPayload, isTokenFresh, getValidTokenClaims } from './auth/jwt';
 export type { JwtAuthClaims } from './auth/jwt';
 
+export {
+  SESSION_COOKIE_NAME,
+  SESSION_MAX_AGE,
+  getSessionId,
+  resolveSessionId,
+  setSessionCookie,
+} from './auth/session';
+
 export { authenticateRequest, applyNewTokens, buildLoginRedirect } from './auth/middleware';
 export type { MiddlewareAuthResult, MiddlewareAuthSuccess, MiddlewareAuthFailure } from './auth/middleware';
 

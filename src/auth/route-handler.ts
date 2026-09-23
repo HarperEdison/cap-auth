@@ -4,6 +4,7 @@ import { protectedApiFetch, type ProtectedResult } from '../protectedApi';
 import { getAuthTokensFromStore, type AuthTokens } from './tokens';
 import { setAuthCookiesOnStore } from './cookies';
 import { getHostnameFromHeaders } from './domain';
+import { getSessionId } from './session';
 import { parseJwtPayload } from './jwt';
 
 export interface RouteHandlerConfig {
@@ -86,6 +87,9 @@ export async function makeProtectedApiCall<T>(
     accessToken: tokens.accessToken,
     refreshToken: tokens.refreshToken,
     traceId: request?.headers.get('x-amzn-trace-id') ?? undefined,
+    // The browser sends cfa_sid as a cookie; cap-api is a separate origin and
+    // never sees it, so lift it onto a header for the server-to-server hop.
+    sessionId: request ? getSessionId(request) : undefined,
   });
 
   const hostname = request ? getHostnameFromHeaders(request.headers) : undefined;
